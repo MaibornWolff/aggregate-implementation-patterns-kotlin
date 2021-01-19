@@ -6,25 +6,18 @@ repositories {
     mavenCentral()
 }
 
-sourceSets.main {
-    java.srcDirs("src/main/java", "src/main/kotlin")
-}
-
-sourceSets.test {
-    java.srcDirs("src/test/java", "src/test/kotlin")
-}
-
-
 dependencies {
-    testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+    implementation(kotlin("stdlib-jdk8"))
+
+    testImplementation("org.assertj:assertj-core:3.18.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0")
+
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
 }
 
-kotlin{
-    sourceSets {
-        val test by getting {
-            dependencies {
-                implementation(kotlin("test-junit"))
-            }
-        }
+tasks {
+    test {
+        useJUnitPlatform()
     }
 }
