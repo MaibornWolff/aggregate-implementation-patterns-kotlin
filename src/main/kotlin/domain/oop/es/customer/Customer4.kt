@@ -3,9 +3,10 @@ package domain.oop.es.customer
 import domain.shared.command.ChangeCustomerEmailAddress
 import domain.shared.command.ConfirmCustomerEmailAddress
 import domain.shared.command.RegisterCustomer
-import domain.shared.event.*
-import domain.shared.event.CustomerEmailAddressChanged.Companion.build
-import domain.shared.event.CustomerRegistered.Companion.build
+import domain.shared.event.CustomerEmailAddressChanged
+import domain.shared.event.CustomerEmailAddressConfirmed
+import domain.shared.event.CustomerRegistered
+import domain.shared.event.Event
 import domain.shared.value.EmailAddress
 import domain.shared.value.Hash
 import domain.shared.value.PersonName
@@ -19,25 +20,15 @@ class Customer4 private constructor() {
     private val recordedEvents: MutableList<Event>
 
     fun confirmEmailAddress(command: ConfirmCustomerEmailAddress) {
-        if (confirmationHash != command.confirmationHash) {
-            recordThat(
-                    CustomerEmailAddressConfirmationFailed.build(command.customerID)
-            )
-            return
-        }
-        if (!isEmailAddressConfirmed) {
-            recordThat(
-                    CustomerEmailAddressConfirmed.build(command.customerID)
-            )
-        }
+
+        // TODO
+
     }
 
     fun changeEmailAddress(command: ChangeCustomerEmailAddress) {
-        if (emailAddress != command.emailAddress) {
-            recordThat(
-                    build(command.customerID, command.emailAddress, command.confirmationHash)
-            )
-        }
+
+        // TODO
+
     }
 
     fun getRecordedEvents(): List<Event> {
@@ -57,17 +48,13 @@ class Customer4 private constructor() {
     fun apply(event: Event) {
         when (event) {
             is CustomerRegistered -> {
-                emailAddress = event.emailAddress
-                confirmationHash = event.confirmationHash
-                name = event.name
+                // TODO
             }
             is CustomerEmailAddressConfirmed -> {
-                isEmailAddressConfirmed = true
+                // TODO
             }
             is CustomerEmailAddressChanged -> {
-                emailAddress = event.emailAddress
-                confirmationHash = event.confirmationHash
-                isEmailAddressConfirmed = false
+                // TODO
             }
         }
     }
@@ -75,9 +62,9 @@ class Customer4 private constructor() {
     companion object {
         fun register(command: RegisterCustomer): Customer4 {
             val customer = Customer4()
-            customer.recordThat(
-                    build(command.customerID, command.emailAddress, command.confirmationHash, command.name)
-            )
+
+            // TODO
+
             return customer
         }
 

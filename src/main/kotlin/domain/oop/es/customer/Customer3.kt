@@ -3,9 +3,11 @@ package domain.oop.es.customer
 import domain.shared.command.ChangeCustomerEmailAddress
 import domain.shared.command.ConfirmCustomerEmailAddress
 import domain.shared.command.RegisterCustomer
-import domain.shared.event.*
-import domain.shared.event.CustomerEmailAddressChanged.Companion.build
+import domain.shared.event.CustomerEmailAddressChanged
+import domain.shared.event.CustomerEmailAddressConfirmed
+import domain.shared.event.CustomerRegistered
 import domain.shared.event.CustomerRegistered.Companion.build
+import domain.shared.event.Event
 import domain.shared.value.EmailAddress
 import domain.shared.value.Hash
 import domain.shared.value.PersonName
@@ -17,24 +19,17 @@ class Customer3 private constructor() {
     private var name: PersonName? = null
 
     fun confirmEmailAddress(command: ConfirmCustomerEmailAddress): List<Event> {
-        if (confirmationHash != command.confirmationHash) {
-            return listOf(
-                    CustomerEmailAddressConfirmationFailed.build(command.customerID)
-            )
-        }
-        return if (isEmailAddressConfirmed) {
-            listOf()
-        } else listOf(
-                CustomerEmailAddressConfirmed.build(command.customerID)
-        )
+
+        // TODO
+
+        return emptyList() // TODO
     }
 
     fun changeEmailAddress(command: ChangeCustomerEmailAddress): List<Event> {
-        return if (emailAddress == command.emailAddress) {
-            listOf()
-        } else listOf(
-                build(command.customerID, command.emailAddress, command.confirmationHash)
-        )
+
+        // TODO
+
+        return emptyList() // TODO
     }
 
     fun apply(events: List<Event>) {
