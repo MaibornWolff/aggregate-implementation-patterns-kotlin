@@ -9,13 +9,8 @@ import domain.shared.event.Event
 
 object Customer7 {
 
-    fun register(command: RegisterCustomer): CustomerRegistered {
-        return build(
-                command.customerID,
-                command.emailAddress,
-                command.confirmationHash,
-                command.name
-        )
+    fun register(command: RegisterCustomer): CustomerRegistered? {
+        return null // TODO
     }
 
     fun confirmEmailAddress(current: CustomerState, command: ConfirmCustomerEmailAddress): List<Event> {

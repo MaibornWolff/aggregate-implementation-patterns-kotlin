@@ -41,29 +41,20 @@ class Customer3 private constructor() {
     fun apply(event: Event) {
         when (event) {
             is CustomerRegistered -> {
-                emailAddress = event.emailAddress
-                confirmationHash = event.confirmationHash
-                name = event.name
+                // TODO
             }
             is CustomerEmailAddressConfirmed -> {
-                isEmailAddressConfirmed = true
+                // TODO
             }
             is CustomerEmailAddressChanged -> {
-                emailAddress = event.emailAddress
-                confirmationHash = event.confirmationHash
-                isEmailAddressConfirmed = false
+                // TODO
             }
         }
     }
 
     companion object {
-        fun register(command: RegisterCustomer): CustomerRegistered {
-            return build(
-                    command.customerID,
-                    command.emailAddress,
-                    command.confirmationHash,
-                    command.name
-            )
+        fun register(command: RegisterCustomer): CustomerRegistered? {
+            return null // TODO
         }
 
         fun reconstitute(events: List<Event>): Customer3 {
