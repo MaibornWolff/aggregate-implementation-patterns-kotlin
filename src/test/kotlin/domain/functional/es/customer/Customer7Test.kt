@@ -59,7 +59,7 @@ internal class Customer7Test {
     @Test
     @Order(2)
     fun confirmEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -67,7 +67,7 @@ internal class Customer7Test {
     @Test
     @Order(3)
     fun confirmEmailAddress_withWrongConfirmationHash() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -75,7 +75,7 @@ internal class Customer7Test {
     @Test
     @Order(4)
     fun confirmEmailAddress_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -83,7 +83,7 @@ internal class Customer7Test {
     @Test
     @Order(5)
     fun confirmEmailAddress_withWrongConfirmationHash_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -91,7 +91,7 @@ internal class Customer7Test {
     @Test
     @Order(6)
     fun changeEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_EmailAddressChanged()
     }
@@ -99,7 +99,7 @@ internal class Customer7Test {
     @Test
     @Order(7)
     fun changeEmailAddress_withUnchangedEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(emailAddress)
         THEN_NothingShouldHappen()
     }
@@ -107,8 +107,10 @@ internal class Customer7Test {
     @Test
     @Order(8)
     fun changeEmailAddress_whenItWasAlreadyChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_NothingShouldHappen()
     }
@@ -116,9 +118,11 @@ internal class Customer7Test {
     @Test
     @Order(9)
     fun confirmEmailAddress_whenItWasPreviouslyConfirmedAndThenChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ConfirmEmailAddress_With(changedConfirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -126,28 +130,20 @@ internal class Customer7Test {
     /**
      * Methods for GIVEN
      */
-    private fun GIVEN_CustomerRegistered() {
-        currentState = reconstitute(
-                listOf(
-                        build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
-                )
-        )
+    private fun GIVEN(vararg events: Event) {
+        currentState = reconstitute(events.toList())
     }
 
-    private fun __and_EmailAddressWasConfirmed() {
-        currentState!!.apply(
-                listOf(
-                        build(customerID!!)
-                )
-        )
+    private fun customerIsRegistered(): CustomerRegistered {
+        return build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
     }
 
-    private fun __and_EmailAddressWasChanged() {
-        currentState!!.apply(
-                listOf(
-                        build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
-                )
-        )
+    private fun __and_EmailAddressWasConfirmed(): CustomerEmailAddressConfirmed {
+        return build(customerID!!)
+    }
+
+    private fun __and_EmailAddressWasChanged(): CustomerEmailAddressChanged {
+        return build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
     }
 
     /**
@@ -187,8 +183,16 @@ internal class Customer7Test {
         val eventName = "CustomerRegistered"
         Assertions.assertNotNull(customerRegistered, eventIsNull(method, eventName))
         Assertions.assertEquals(customerID, customerRegistered!!.customerID, propertyIsWrong(method, "customerID"))
-        Assertions.assertEquals(emailAddress, customerRegistered!!.emailAddress, propertyIsWrong(method, "emailAddress"))
-        Assertions.assertEquals(confirmationHash, customerRegistered!!.confirmationHash, propertyIsWrong(method, "confirmationHash"))
+        Assertions.assertEquals(
+            emailAddress,
+            customerRegistered!!.emailAddress,
+            propertyIsWrong(method, "emailAddress")
+        )
+        Assertions.assertEquals(
+            confirmationHash,
+            customerRegistered!!.confirmationHash,
+            propertyIsWrong(method, "confirmationHash")
+        )
         Assertions.assertEquals(name, customerRegistered!!.name, propertyIsWrong(method, "name"))
     }
 
@@ -198,7 +202,11 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
         val typedEvent = event as CustomerEmailAddressConfirmed
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
     }
@@ -209,7 +217,11 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmationFailed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmationFailed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
         val typedEvent = event as CustomerEmailAddressConfirmationFailed
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
     }
@@ -220,15 +232,25 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressChanged::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(
+            CustomerEmailAddressChanged::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
         val typedEvent = event as CustomerEmailAddressChanged
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
         Assertions.assertEquals(changedEmailAddress, typedEvent.emailAddress, propertyIsWrong(method, "emailAddress"))
-        Assertions.assertEquals(changedConfirmationHash, typedEvent.confirmationHash, propertyIsWrong(method, "confirmationHash"))
+        Assertions.assertEquals(
+            changedConfirmationHash,
+            typedEvent.confirmationHash,
+            propertyIsWrong(method, "confirmationHash")
+        )
     }
 
     private fun THEN_NothingShouldHappen() {
-        Assertions.assertEquals(0, recordedEvents!!.size,
-                noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!)))
+        Assertions.assertEquals(
+            0, recordedEvents!!.size,
+            noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!))
+        )
     }
 }

@@ -56,7 +56,7 @@ internal class Customer3Test {
     @Test
     @Order(2)
     fun confirmEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -64,7 +64,7 @@ internal class Customer3Test {
     @Test
     @Order(3)
     fun confirmEmailAddress_withWrongConfirmationHash() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -72,8 +72,10 @@ internal class Customer3Test {
     @Test
     @Order(4)
     fun confirmEmailAddress_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed()
+        )
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_NothingShouldHappen()
     }
@@ -81,8 +83,10 @@ internal class Customer3Test {
     @Test
     @Order(5)
     fun confirmEmailAddress_withWrongConfirmationHash_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed()
+        )
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -90,7 +94,7 @@ internal class Customer3Test {
     @Test
     @Order(6)
     fun changeEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_EmailAddressChanged()
     }
@@ -98,7 +102,7 @@ internal class Customer3Test {
     @Test
     @Order(7)
     fun changeEmailAddress_withUnchangedEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(emailAddress)
         THEN_NothingShouldHappen()
     }
@@ -106,8 +110,10 @@ internal class Customer3Test {
     @Test
     @Order(8)
     fun changeEmailAddress_whenItWasAlreadyChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_NothingShouldHappen()
     }
@@ -115,9 +121,11 @@ internal class Customer3Test {
     @Test
     @Order(9)
     fun confirmEmailAddress_whenItWasPreviouslyConfirmedAndThenChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ConfirmEmailAddress_With(changedConfirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -125,24 +133,20 @@ internal class Customer3Test {
     /**
      * Methods for GIVEN
      */
-    private fun GIVEN_CustomerRegistered() {
-        registeredCustomer = Customer3.reconstitute(
-                listOf(
-                        build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
-                )
-        )
+    private fun GIVEN(vararg events: Event) {
+        registeredCustomer = Customer3.reconstitute(events.toList())
     }
 
-    private fun __and_EmailAddressWasConfirmed() {
-        registeredCustomer!!.apply(
-                build(customerID!!)
-        )
+    private fun customerIsRegistered(): CustomerRegistered {
+        return build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
     }
 
-    private fun __and_EmailAddressWasChanged() {
-        registeredCustomer!!.apply(
-                build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
-        )
+    private fun __and_EmailAddressWasConfirmed(): CustomerEmailAddressConfirmed {
+        return build(customerID!!)
+    }
+
+    private fun __and_EmailAddressWasChanged(): CustomerEmailAddressChanged {
+        return build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
     }
 
     /**
@@ -181,8 +185,16 @@ internal class Customer3Test {
         val eventName = "CustomerRegistered"
         Assertions.assertNotNull(customerRegistered, eventIsNull("register", eventName))
         Assertions.assertEquals(customerID, customerRegistered!!.customerID, propertyIsWrong(method, "customerID"))
-        Assertions.assertEquals(emailAddress, customerRegistered!!.emailAddress, propertyIsWrong(method, "emailAddress"))
-        Assertions.assertEquals(confirmationHash, customerRegistered!!.confirmationHash, propertyIsWrong(method, "confirmationHash"))
+        Assertions.assertEquals(
+            emailAddress,
+            customerRegistered!!.emailAddress,
+            propertyIsWrong(method, "emailAddress")
+        )
+        Assertions.assertEquals(
+            confirmationHash,
+            customerRegistered!!.confirmationHash,
+            propertyIsWrong(method, "confirmationHash")
+        )
         Assertions.assertEquals(name, customerRegistered!!.name, propertyIsWrong(method, "name"))
     }
 
@@ -192,8 +204,16 @@ internal class Customer3Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmed).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressConfirmed).customerID,
+            propertyIsWrong(method, "customerID")
+        )
     }
 
     private fun THEN_EmailAddressConfirmationFailed() {
@@ -202,8 +222,16 @@ internal class Customer3Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmationFailed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmationFailed).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmationFailed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressConfirmationFailed).customerID,
+            propertyIsWrong(method, "customerID")
+        )
     }
 
     private fun THEN_EmailAddressChanged() {
@@ -212,8 +240,16 @@ internal class Customer3Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressChanged::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressChanged).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressChanged::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressChanged).customerID,
+            propertyIsWrong(method, "customerID")
+        )
         Assertions.assertEquals(changedEmailAddress, event.emailAddress, propertyIsWrong(method, "emailAddress"))
     }
 
