@@ -183,16 +183,8 @@ internal class Customer7Test {
         val eventName = "CustomerRegistered"
         Assertions.assertNotNull(customerRegistered, eventIsNull(method, eventName))
         Assertions.assertEquals(customerID, customerRegistered!!.customerID, propertyIsWrong(method, "customerID"))
-        Assertions.assertEquals(
-            emailAddress,
-            customerRegistered!!.emailAddress,
-            propertyIsWrong(method, "emailAddress")
-        )
-        Assertions.assertEquals(
-            confirmationHash,
-            customerRegistered!!.confirmationHash,
-            propertyIsWrong(method, "confirmationHash")
-        )
+        Assertions.assertEquals(emailAddress, customerRegistered!!.emailAddress, propertyIsWrong(method, "emailAddress"))
+        Assertions.assertEquals(confirmationHash, customerRegistered!!.confirmationHash, propertyIsWrong(method, "confirmationHash"))
         Assertions.assertEquals(name, customerRegistered!!.name, propertyIsWrong(method, "name"))
     }
 
@@ -202,11 +194,7 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressConfirmed::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
+        Assertions.assertEquals(CustomerEmailAddressConfirmed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
         val typedEvent = event as CustomerEmailAddressConfirmed
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
     }
@@ -217,11 +205,7 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressConfirmationFailed::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
+        Assertions.assertEquals(CustomerEmailAddressConfirmationFailed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
         val typedEvent = event as CustomerEmailAddressConfirmationFailed
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
     }
@@ -232,25 +216,14 @@ internal class Customer7Test {
         Assertions.assertEquals(1, recordedEvents!!.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents!![0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressChanged::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
+        Assertions.assertEquals(CustomerEmailAddressChanged::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
         val typedEvent = event as CustomerEmailAddressChanged
         Assertions.assertEquals(customerID, typedEvent.customerID, propertyIsWrong(method, "customerID"))
         Assertions.assertEquals(changedEmailAddress, typedEvent.emailAddress, propertyIsWrong(method, "emailAddress"))
-        Assertions.assertEquals(
-            changedConfirmationHash,
-            typedEvent.confirmationHash,
-            propertyIsWrong(method, "confirmationHash")
-        )
+        Assertions.assertEquals(changedConfirmationHash, typedEvent.confirmationHash, propertyIsWrong(method, "confirmationHash"))
     }
 
     private fun THEN_NothingShouldHappen() {
-        Assertions.assertEquals(
-            0, recordedEvents!!.size,
-            noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!))
-        )
+        Assertions.assertEquals(0, recordedEvents!!.size, noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!)))
     }
 }
