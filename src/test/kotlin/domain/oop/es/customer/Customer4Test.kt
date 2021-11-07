@@ -70,8 +70,10 @@ class Customer4Test {
     @Test
     @Order(4)
     fun confirmEmailAddress_whenItWasAlreadyConfirmed() {
-        GIVEN(customerIsRegistered())
-        __and_EmailAddressWasConfirmed()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed()
+        )
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_NothingShouldHappen()
     }
@@ -79,8 +81,10 @@ class Customer4Test {
     @Test
     @Order(5)
     fun confirmEmailAddress_withWrongConfirmationHash_whenItWasAlreadyConfirmed() {
-        GIVEN(customerIsRegistered())
-        __and_EmailAddressWasConfirmed()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed()
+        )
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
