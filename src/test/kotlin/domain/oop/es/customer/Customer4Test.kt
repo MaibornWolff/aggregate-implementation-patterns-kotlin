@@ -10,12 +10,9 @@ import domain.THelper.typeOfFirst
 import domain.shared.command.ChangeCustomerEmailAddress
 import domain.shared.command.ConfirmCustomerEmailAddress
 import domain.shared.command.RegisterCustomer.Companion.build
-import domain.shared.event.CustomerEmailAddressChanged
+import domain.shared.event.*
 import domain.shared.event.CustomerEmailAddressChanged.Companion.build
-import domain.shared.event.CustomerEmailAddressConfirmationFailed
-import domain.shared.event.CustomerEmailAddressConfirmed
 import domain.shared.event.CustomerEmailAddressConfirmed.Companion.build
-import domain.shared.event.CustomerRegistered
 import domain.shared.event.CustomerRegistered.Companion.build
 import domain.shared.value.EmailAddress
 import domain.shared.value.EmailAddress.Companion.build
@@ -57,7 +54,7 @@ class Customer4Test {
     @Test
     @Order(2)
     fun confirmEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -65,7 +62,7 @@ class Customer4Test {
     @Test
     @Order(3)
     fun confirmEmailAddress_withWrongConfirmationHash() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -73,7 +70,7 @@ class Customer4Test {
     @Test
     @Order(4)
     fun confirmEmailAddress_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         __and_EmailAddressWasConfirmed()
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_NothingShouldHappen()
@@ -82,7 +79,7 @@ class Customer4Test {
     @Test
     @Order(5)
     fun confirmEmailAddress_withWrongConfirmationHash_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         __and_EmailAddressWasConfirmed()
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
@@ -91,7 +88,7 @@ class Customer4Test {
     @Test
     @Order(6)
     fun changeEmailAddress() { // Given
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_EmailAddressChanged()
     }
@@ -99,7 +96,7 @@ class Customer4Test {
     @Test
     @Order(7)
     fun changeEmailAddress_withUnchangedEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(emailAddress)
         THEN_NothingShouldHappen()
     }
@@ -107,8 +104,10 @@ class Customer4Test {
     @Test
     @Order(8)
     fun changeEmailAddress_whenItWasAlreadyChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_NothingShouldHappen()
     }
@@ -116,9 +115,11 @@ class Customer4Test {
     @Test
     @Order(9)
     fun confirmEmailAddress_whenItWasPreviouslyConfirmedAndThenChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ConfirmEmailAddress_With(changedConfirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -126,24 +127,20 @@ class Customer4Test {
     /**
      * Methods for GIVEN
      */
-    private fun GIVEN_CustomerRegistered() {
-        registeredCustomer = Customer4.reconstitute(
-                listOf(
-                        build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
-                )
-        )
+    private fun GIVEN(vararg events: Event) {
+        registeredCustomer = Customer4.reconstitute(events.toList())
     }
 
-    private fun __and_EmailAddressWasConfirmed() {
-        registeredCustomer!!.apply(
-                build(customerID!!)
-        )
+    private fun customerIsRegistered(): CustomerRegistered {
+        return build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
     }
 
-    private fun __and_EmailAddressWasChanged() {
-        registeredCustomer!!.apply(
-                build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
-        )
+    private fun __and_EmailAddressWasConfirmed(): CustomerEmailAddressConfirmed {
+        return build(customerID!!)
+    }
+
+    private fun __and_EmailAddressWasChanged(): CustomerEmailAddressChanged {
+        return build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
     }
 
     /**
@@ -185,7 +182,11 @@ class Customer4Test {
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
         Assertions.assertEquals(CustomerRegistered::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerRegistered).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerRegistered).customerID,
+            propertyIsWrong(method, "customerID")
+        )
         Assertions.assertEquals(emailAddress, event.emailAddress, propertyIsWrong(method, "emailAddress"))
         Assertions.assertEquals(confirmationHash, event.confirmationHash, propertyIsWrong(method, "confirmationHash"))
         Assertions.assertEquals(name, event.name, propertyIsWrong(method, "name"))
@@ -198,8 +199,16 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmed).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressConfirmed).customerID,
+            propertyIsWrong(method, "customerID")
+        )
     }
 
     fun THEN_EmailAddressConfirmationFailed() {
@@ -209,8 +218,16 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressConfirmationFailed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmationFailed).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressConfirmationFailed::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressConfirmationFailed).customerID,
+            propertyIsWrong(method, "customerID")
+        )
     }
 
     private fun THEN_EmailAddressChanged() {
@@ -220,13 +237,25 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(CustomerEmailAddressChanged::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(customerID, (event as CustomerEmailAddressChanged).customerID, propertyIsWrong(method, "customerID"))
+        Assertions.assertEquals(
+            CustomerEmailAddressChanged::class.java,
+            event.javaClass,
+            eventOfWrongTypeWasRecorded(method)
+        )
+        Assertions.assertEquals(
+            customerID,
+            (event as CustomerEmailAddressChanged).customerID,
+            propertyIsWrong(method, "customerID")
+        )
         Assertions.assertEquals(changedEmailAddress, event.emailAddress, propertyIsWrong(method, "emailAddress"))
     }
 
     fun THEN_NothingShouldHappen() {
         val recordedEvents = registeredCustomer!!.getRecordedEvents()
-        Assertions.assertEquals(0, registeredCustomer!!.getRecordedEvents().size, noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents)))
+        Assertions.assertEquals(
+            0,
+            registeredCustomer!!.getRecordedEvents().size,
+            noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents))
+        )
     }
 }
