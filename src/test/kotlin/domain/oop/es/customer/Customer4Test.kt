@@ -186,11 +186,7 @@ class Customer4Test {
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
         Assertions.assertEquals(CustomerRegistered::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
-        Assertions.assertEquals(
-            customerID,
-            (event as CustomerRegistered).customerID,
-            propertyIsWrong(method, "customerID")
-        )
+        Assertions.assertEquals(customerID, (event as CustomerRegistered).customerID, propertyIsWrong(method, "customerID"))
         Assertions.assertEquals(emailAddress, event.emailAddress, propertyIsWrong(method, "emailAddress"))
         Assertions.assertEquals(confirmationHash, event.confirmationHash, propertyIsWrong(method, "confirmationHash"))
         Assertions.assertEquals(name, event.name, propertyIsWrong(method, "name"))
@@ -203,16 +199,8 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressConfirmed::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
-        Assertions.assertEquals(
-            customerID,
-            (event as CustomerEmailAddressConfirmed).customerID,
-            propertyIsWrong(method, "customerID")
-        )
+        Assertions.assertEquals(CustomerEmailAddressConfirmed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmed).customerID, propertyIsWrong(method, "customerID"))
     }
 
     fun THEN_EmailAddressConfirmationFailed() {
@@ -222,16 +210,8 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressConfirmationFailed::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
-        Assertions.assertEquals(
-            customerID,
-            (event as CustomerEmailAddressConfirmationFailed).customerID,
-            propertyIsWrong(method, "customerID")
-        )
+        Assertions.assertEquals(CustomerEmailAddressConfirmationFailed::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(customerID, (event as CustomerEmailAddressConfirmationFailed).customerID, propertyIsWrong(method, "customerID"))
     }
 
     private fun THEN_EmailAddressChanged() {
@@ -241,25 +221,13 @@ class Customer4Test {
         Assertions.assertEquals(1, recordedEvents.size, noEventWasRecorded(method, eventName))
         val event = recordedEvents[0]
         Assertions.assertNotNull(event, eventIsNull(method, eventName))
-        Assertions.assertEquals(
-            CustomerEmailAddressChanged::class.java,
-            event.javaClass,
-            eventOfWrongTypeWasRecorded(method)
-        )
-        Assertions.assertEquals(
-            customerID,
-            (event as CustomerEmailAddressChanged).customerID,
-            propertyIsWrong(method, "customerID")
-        )
+        Assertions.assertEquals(CustomerEmailAddressChanged::class.java, event.javaClass, eventOfWrongTypeWasRecorded(method))
+        Assertions.assertEquals(customerID, (event as CustomerEmailAddressChanged).customerID, propertyIsWrong(method, "customerID"))
         Assertions.assertEquals(changedEmailAddress, event.emailAddress, propertyIsWrong(method, "emailAddress"))
     }
 
     fun THEN_NothingShouldHappen() {
         val recordedEvents = registeredCustomer!!.getRecordedEvents()
-        Assertions.assertEquals(
-            0,
-            registeredCustomer!!.getRecordedEvents().size,
-            noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents))
-        )
+        Assertions.assertEquals(0, registeredCustomer!!.getRecordedEvents().size, noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents)))
     }
 }
