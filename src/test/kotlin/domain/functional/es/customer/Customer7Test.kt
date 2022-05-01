@@ -59,7 +59,7 @@ internal class Customer7Test {
     @Test
     @Order(2)
     fun confirmEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -67,7 +67,7 @@ internal class Customer7Test {
     @Test
     @Order(3)
     fun confirmEmailAddress_withWrongConfirmationHash() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -75,7 +75,7 @@ internal class Customer7Test {
     @Test
     @Order(4)
     fun confirmEmailAddress_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(confirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -83,7 +83,7 @@ internal class Customer7Test {
     @Test
     @Order(5)
     fun confirmEmailAddress_withWrongConfirmationHash_whenItWasAlreadyConfirmed() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ConfirmEmailAddress_With(wrongConfirmationHash)
         THEN_EmailAddressConfirmationFailed()
     }
@@ -91,7 +91,7 @@ internal class Customer7Test {
     @Test
     @Order(6)
     fun changeEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_EmailAddressChanged()
     }
@@ -99,7 +99,7 @@ internal class Customer7Test {
     @Test
     @Order(7)
     fun changeEmailAddress_withUnchangedEmailAddress() {
-        GIVEN_CustomerRegistered()
+        GIVEN(customerIsRegistered())
         WHEN_ChangeEmailAddress_With(emailAddress)
         THEN_NothingShouldHappen()
     }
@@ -107,8 +107,10 @@ internal class Customer7Test {
     @Test
     @Order(8)
     fun changeEmailAddress_whenItWasAlreadyChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ChangeEmailAddress_With(changedEmailAddress)
         THEN_NothingShouldHappen()
     }
@@ -116,9 +118,11 @@ internal class Customer7Test {
     @Test
     @Order(9)
     fun confirmEmailAddress_whenItWasPreviouslyConfirmedAndThenChanged() {
-        GIVEN_CustomerRegistered()
-        __and_EmailAddressWasConfirmed()
-        __and_EmailAddressWasChanged()
+        GIVEN(
+            customerIsRegistered(),
+            __and_EmailAddressWasConfirmed(),
+            __and_EmailAddressWasChanged()
+        )
         WHEN_ConfirmEmailAddress_With(changedConfirmationHash)
         THEN_EmailAddressConfirmed()
     }
@@ -126,28 +130,20 @@ internal class Customer7Test {
     /**
      * Methods for GIVEN
      */
-    private fun GIVEN_CustomerRegistered() {
-        currentState = reconstitute(
-                listOf(
-                        build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
-                )
-        )
+    private fun GIVEN(vararg events: Event) {
+        currentState = reconstitute(events.toList())
     }
 
-    private fun __and_EmailAddressWasConfirmed() {
-        currentState!!.apply(
-                listOf(
-                        build(customerID!!)
-                )
-        )
+    private fun customerIsRegistered(): CustomerRegistered {
+        return build(customerID!!, emailAddress!!, confirmationHash!!, name!!)
     }
 
-    private fun __and_EmailAddressWasChanged() {
-        currentState!!.apply(
-                listOf(
-                        build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
-                )
-        )
+    private fun __and_EmailAddressWasConfirmed(): CustomerEmailAddressConfirmed {
+        return build(customerID!!)
+    }
+
+    private fun __and_EmailAddressWasChanged(): CustomerEmailAddressChanged {
+        return build(customerID!!, changedEmailAddress!!, changedConfirmationHash!!)
     }
 
     /**
@@ -228,7 +224,6 @@ internal class Customer7Test {
     }
 
     private fun THEN_NothingShouldHappen() {
-        Assertions.assertEquals(0, recordedEvents!!.size,
-                noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!)))
+        Assertions.assertEquals(0, recordedEvents!!.size, noEventShouldHaveBeenRecorded(typeOfFirst(recordedEvents!!)))
     }
 }
